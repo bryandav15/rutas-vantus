@@ -6,20 +6,22 @@ import { Layers, MapPin, Navigation, Info } from 'lucide-react';
 
 const APIZACO_CENTER = [19.4128, -98.1428];
 
-function MapBoundsUpdater({ points }) {
+function MapBoundsUpdater({ points, mobileTab }) {
   const map = useMap();
 
   useEffect(() => {
     // Invalidate map size so Leaflet recalculates tile grid when tab/viewport changes
     map.invalidateSize();
-    const t1 = setTimeout(() => map.invalidateSize(), 150);
-    const t2 = setTimeout(() => map.invalidateSize(), 400);
+    const t1 = setTimeout(() => map.invalidateSize(), 50);
+    const t2 = setTimeout(() => map.invalidateSize(), 200);
+    const t3 = setTimeout(() => map.invalidateSize(), 500);
 
     if (!points || points.length === 0) {
       map.setView(APIZACO_CENTER, 12, { animate: true });
       return () => {
         clearTimeout(t1);
         clearTimeout(t2);
+        clearTimeout(t3);
       };
     }
 
@@ -33,8 +35,9 @@ function MapBoundsUpdater({ points }) {
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
+      clearTimeout(t3);
     };
-  }, [points, map]);
+  }, [points, map, mobileTab]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -127,7 +130,7 @@ export default function RouteMap({ selectedRoute, allRoutes = [] }) {
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
 
-        <MapBoundsUpdater points={mapPoints} />
+        <MapBoundsUpdater points={mapPoints} mobileTab={mobileTab} />
 
         {selectedRoute ? (
           <>
