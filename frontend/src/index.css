@@ -2854,9 +2854,7 @@ body {
     flex: 1;
   }
 
-  .leaflet-map-canvas,
-  .leaflet-container {
-    width: 100% !important;
+  .leaflet-map-canvas {
     height: 100% !important;
     min-height: 400px;
   }
