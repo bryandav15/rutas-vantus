@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 140" width="100%" height="100%">
+  <g fill="none">
+    <!-- Outer Frame Box -->
+    <rect x="6" y="6" width="468" height="128" fill="#ffffff" stroke="#000000" stroke-width="8" />
+    
+    <!-- 5 Vertical Divider Lines for 6 Letters (V A N T U S) -->
+    <line x1="84" y1="6" x2="84" y2="134" stroke="#000000" stroke-width="6" />
+    <line x1="162" y1="6" x2="162" y2="134" stroke="#000000" stroke-width="6" />
+    <line x1="240" y1="6" x2="240" y2="134" stroke="#000000" stroke-width="6" />
+    <line x1="318" y1="6" x2="318" y2="134" stroke="#000000" stroke-width="6" />
+    <line x1="396" y1="6" x2="396" y2="134" stroke="#000000" stroke-width="6" />
+  </g>
+  
+  <!-- Letters: V | A | N | T | U | S -->
+  <g fill="#000000" font-family="'Oswald', 'Franklin Gothic Medium', 'Arial Narrow', sans-serif" font-size="96" font-weight="300" text-anchor="middle">
+    <text x="45" y="104">V</text>
+    <text x="123" y="104">A</text>
+    <text x="201" y="104">N</text>
+    <text x="279" y="104">T</text>
+    <text x="357" y="104">U</text>
+    <text x="435" y="104">S</text>
+  </g>
+</svg>
