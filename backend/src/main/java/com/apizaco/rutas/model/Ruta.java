@@ -13,13 +13,13 @@ public class Ruta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 50)
     private String numero;
 
     @Column(nullable = false, length = 150)
     private String nombre;
 
-    @Column(name = "color_hex", length = 7)
+    @Column(name = "color_hex", length = 20)
     private String colorHex;
 
     @Column(name = "precio_estimado", nullable = false, precision = 6, scale = 2)

@@ -16,9 +16,9 @@ CREATE TABLE IF NOT EXISTS localidad (
 -- Tabla de Rutas de transporte
 CREATE TABLE IF NOT EXISTS ruta (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    numero VARCHAR(10) NOT NULL,
+    numero VARCHAR(50) NOT NULL,
     nombre VARCHAR(150) NOT NULL,
-    color_hex VARCHAR(7) NOT NULL DEFAULT '#2F5233',
+    color_hex VARCHAR(20) NOT NULL DEFAULT '#2F5233',
     precio_estimado DECIMAL(6, 2) NOT NULL,
     duracion_min INT NOT NULL,
     activa BOOLEAN NOT NULL DEFAULT TRUE
