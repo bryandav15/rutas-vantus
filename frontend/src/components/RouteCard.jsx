@@ -8,7 +8,7 @@ export default function RouteCard({ ruta, isSelected, onSelect, onOpenRating }) 
   const [showStops, setShowStops] = useState(false);
   const [showReviews, setShowReviews] = useState(false);
 
-  const routeColor = ruta.color || '#2F5233';
+  const routeColor = ruta.color || ruta.colorHex || '#2F5233';
   const ratingScore = ruta.calificacionPromedio ? Number(ruta.calificacionPromedio).toFixed(1) : '4.7';
   const totalReviews = ruta.totalCalificaciones ?? (ruta.ultimasResenias?.length || 0);
 

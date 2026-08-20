@@ -105,11 +105,14 @@ export async function buscarRutas(destino = '') {
       : `${API_BASE_URL}/rutas/buscar`;
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2000);
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     const response = await fetch(url, {
       method: 'GET',
-      headers: { 'Accept': 'application/json' },
+      headers: { 
+        'Accept': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
+      },
       signal: controller.signal
     });
 
@@ -119,14 +122,23 @@ export async function buscarRutas(destino = '') {
       const backendRoutes = await response.json();
       isLive = true;
 
+      // Normalizar color en todas las rutas recibidas del backend
+      const normalizedBackend = (Array.isArray(backendRoutes) ? backendRoutes : []).map(r => ({
+        ...r,
+        color: r.color || r.colorHex || '#2F5233',
+        colorHex: r.colorHex || r.color || '#2F5233'
+      }));
+
       // Unir rutas de backend con rutas locales que no existan en el backend
-      const backendIds = new Set(backendRoutes.map(r => String(r.id)));
-      const backendNumbers = new Set(backendRoutes.map(r => String(r.numero).toLowerCase().trim()));
+      const backendIds = new Set(normalizedBackend.map(r => String(r.id)));
+      const backendNumbers = new Set(normalizedBackend.map(r => String(r.numero).toLowerCase().trim()));
       const extraLocales = localRoutes.filter(lr => 
         !backendIds.has(String(lr.id)) && !backendNumbers.has(String(lr.numero).toLowerCase().trim())
       );
 
-      combined = [...backendRoutes, ...extraLocales];
+      combined = [...normalizedBackend, ...extraLocales];
+      // Mantener sincronizado el localStorage con los datos reales del backend
+      saveLocalRoutes(combined);
     } else {
       combined = localRoutes;
     }
@@ -166,7 +178,10 @@ export async function crearRuta(rutaData) {
   try {
     const response = await fetch(`${API_BASE_URL}/rutas`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
+      },
       body: JSON.stringify(rutaData)
     });
 
@@ -183,7 +198,8 @@ export async function crearRuta(rutaData) {
       id: Date.now(),
       numero: rutaData.numero,
       nombre: rutaData.nombre,
-      color: rutaData.colorHex || '#10b981',
+      color: rutaData.colorHex || rutaData.color || '#10b981',
+      colorHex: rutaData.colorHex || rutaData.color || '#10b981',
       origen: rutaData.paradas?.[0]?.nombre || 'Base Inicial',
       destino: rutaData.paradas?.[rutaData.paradas.length - 1]?.nombre || 'Base Final',
       precio: Number(rutaData.precioEstimado) || 10.0,
@@ -201,6 +217,12 @@ export async function crearRuta(rutaData) {
         lng: Number(p.lng),
         orden: idx + 1
       }))
+    };
+  } else {
+    created = {
+      ...created,
+      color: created.color || created.colorHex || rutaData.colorHex || '#10b981',
+      colorHex: created.colorHex || created.color || rutaData.colorHex || '#10b981'
     };
   }
 
@@ -232,7 +254,10 @@ export async function actualizarRuta(id, rutaData) {
   try {
     const response = await fetch(`${API_BASE_URL}/rutas/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
+      },
       body: JSON.stringify(rutaData)
     });
 
@@ -253,12 +278,15 @@ export async function actualizarRuta(id, rutaData) {
     String(r.numero).toLowerCase() === String(rutaData.numero).toLowerCase()
   );
 
+  const cleanColor = rutaData.colorHex || rutaData.color || '#2F5233';
+
   const fallbackUpdated = {
     ...(index !== -1 ? routes[index] : {}),
     id: id,
     numero: rutaData.numero,
     nombre: rutaData.nombre,
-    color: rutaData.colorHex || rutaData.color || '#2F5233',
+    color: cleanColor,
+    colorHex: cleanColor,
     colorHex: rutaData.colorHex || rutaData.color || '#2F5233',
     origen: rutaData.paradas?.[0]?.nombre || 'Base Inicial',
     destino: rutaData.paradas?.[rutaData.paradas.length - 1]?.nombre || 'Base Final',
@@ -293,7 +321,10 @@ export async function actualizarRuta(id, rutaData) {
  */
 export async function eliminarRuta(id) {
   try {
-    await fetch(`${API_BASE_URL}/rutas/${id}`, { method: 'DELETE' });
+    await fetch(`${API_BASE_URL}/rutas/${id}`, { 
+      method: 'DELETE',
+      headers: { 'ngrok-skip-browser-warning': 'true' }
+    });
   } catch (err) {}
 
   const routes = getLocalRoutes();
@@ -312,7 +343,10 @@ export async function enviarSugerencia(sugerenciaData) {
   try {
     const response = await fetch(`${API_BASE_URL}/sugerencias`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
+      },
       body: JSON.stringify(sugerenciaData)
     });
     if (response.ok) {
@@ -346,7 +380,12 @@ export async function obtenerSugerencias(estado = '') {
 
   try {
     const url = estado ? `${API_BASE_URL}/sugerencias?estado=${encodeURIComponent(estado)}` : `${API_BASE_URL}/sugerencias`;
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: { 
+        'Accept': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
+      }
+    });
     if (response.ok) {
       const backendSug = await response.json();
       const backendIds = new Set(backendSug.map(s => String(s.id)));
@@ -370,7 +409,10 @@ export async function cambiarEstadoSugerencia(id, nuevoEstado) {
   try {
     await fetch(`${API_BASE_URL}/sugerencias/${id}/estado`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
+      },
       body: JSON.stringify({ estado: nuevoEstado })
     });
   } catch (err) {}
@@ -400,7 +442,10 @@ export async function aprobarYPublicarRutaSugerida(sugerenciaId) {
 
   // 2. Intentar en backend
   try {
-    fetch(`${API_BASE_URL}/sugerencias/${sugerenciaId}/convertir-en-ruta`, { method: 'POST' }).catch(() => {});
+    fetch(`${API_BASE_URL}/sugerencias/${sugerenciaId}/convertir-en-ruta`, { 
+      method: 'POST',
+      headers: { 'ngrok-skip-browser-warning': 'true' }
+    }).catch(() => {});
   } catch (e) {}
 
   // 3. Construir la ruta
@@ -451,7 +496,10 @@ export async function calificarRuta(rutaId, calificacionData) {
   try {
     await fetch(`${API_BASE_URL}/rutas/${rutaId}/calificaciones`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
+      },
       body: JSON.stringify(calificacionData)
     });
   } catch (err) {}

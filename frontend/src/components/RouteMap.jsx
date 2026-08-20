@@ -116,7 +116,7 @@ export default function RouteMap({ selectedRoute, allRoutes = [], mobileTab }) {
     return points;
   }, [selectedRoute, allRoutes]);
 
-  const activeColor = selectedRoute?.color || '#2F5233';
+  const activeColor = selectedRoute?.color || selectedRoute?.colorHex || '#2F5233';
 
   return (
     <div className="map-wrapper">
@@ -222,7 +222,7 @@ export default function RouteMap({ selectedRoute, allRoutes = [], mobileTab }) {
                 <Polyline
                   positions={coords}
                   pathOptions={{
-                    color: ruta.color || '#2F5233',
+                    color: ruta.color || ruta.colorHex || '#2F5233',
                     weight: 3.5,
                     opacity: 0.65,
                     lineCap: 'round'
@@ -235,7 +235,7 @@ export default function RouteMap({ selectedRoute, allRoutes = [], mobileTab }) {
                     icon={createCustomMarkerIcon(
                       idx,
                       ruta.paradas.length,
-                      ruta.color || '#2F5233',
+                      ruta.color || ruta.colorHex || '#2F5233',
                       p.nombre
                     )}
                   >
