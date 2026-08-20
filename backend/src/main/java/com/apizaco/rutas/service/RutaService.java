@@ -35,8 +35,19 @@ public class RutaService {
     }
 
     @Transactional(readOnly = true)
+    public List<com.apizaco.rutas.dto.RutaResponseDTO> buscarRutasDTO(String destino) {
+        List<Ruta> rutas = buscarRutas(destino);
+        return rutas.stream().map(com.apizaco.rutas.dto.RutaResponseDTO::fromEntity).toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<Ruta> listarTodas() {
         return rutaRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public List<com.apizaco.rutas.dto.RutaResponseDTO> listarTodasDTO() {
+        return rutaRepository.findAll().stream().map(com.apizaco.rutas.dto.RutaResponseDTO::fromEntity).toList();
     }
 
     @Transactional(readOnly = true)
