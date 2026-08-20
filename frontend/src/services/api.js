@@ -105,7 +105,7 @@ export async function buscarRutas(destino = '') {
       : `${API_BASE_URL}/rutas/buscar`;
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2000);
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     const response = await fetch(url, {
       method: 'GET',
@@ -125,9 +125,12 @@ export async function buscarRutas(destino = '') {
 
       combined = [...extraLocales, ...backendRoutes];
     } else {
+      console.warn('Backend no retornó 200 OK:', response.status);
       combined = localRoutes;
+      isLive = false;
     }
   } catch (error) {
+    console.error('Error al conectar con backend MySQL:', error);
     combined = localRoutes;
     isLive = false;
   }
