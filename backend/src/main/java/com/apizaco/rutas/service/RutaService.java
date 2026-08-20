@@ -64,26 +64,33 @@ public class RutaService {
         Ruta ruta = rutaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ruta no encontrada con ID: " + id));
 
-        ruta.setNumero(dto.getNumero().trim());
-        ruta.setNombre(dto.getNombre().trim());
+        if (dto.getNumero() != null && !dto.getNumero().isBlank()) {
+            ruta.setNumero(dto.getNumero().trim());
+        }
+        if (dto.getNombre() != null && !dto.getNombre().isBlank()) {
+            ruta.setNombre(dto.getNombre().trim());
+        }
         String col = dto.getColorHex() != null && !dto.getColorHex().isBlank() ? dto.getColorHex() : dto.getColor();
         if (col != null && !col.isBlank()) {
             ruta.setColorHex(col.trim());
         }
-        ruta.setPrecioEstimado(dto.getPrecioEstimado());
-        ruta.setDuracionMin(dto.getDuracionMin());
+        if (dto.getPrecioEstimado() != null) {
+            ruta.setPrecioEstimado(dto.getPrecioEstimado());
+        }
+        if (dto.getDuracionMin() != null) {
+            ruta.setDuracionMin(dto.getDuracionMin());
+        }
         if (dto.getActiva() != null) {
             ruta.setActiva(dto.getActiva());
         }
 
         if (dto.getParadas() != null && !dto.getParadas().isEmpty()) {
             ruta.getParadas().clear();
-            rutaRepository.saveAndFlush(ruta);
             List<Parada> nuevasParadas = construirParadas(ruta, dto.getParadas());
             ruta.getParadas().addAll(nuevasParadas);
         }
 
-        return rutaRepository.saveAndFlush(ruta);
+        return rutaRepository.save(ruta);
     }
 
     public Ruta toggleActiva(Long id) {
@@ -103,13 +110,17 @@ public class RutaService {
 
         int orden = 1;
         for (ParadaCreateDTO pDto : dtoList) {
-            Localidad localidad = localidadRepository.findByNombreIgnoreCase(pDto.getNombre().trim())
+            String nombreParada = pDto.getNombre() != null && !pDto.getNombre().isBlank()
+                    ? pDto.getNombre().trim()
+                    : "Parada " + orden;
+
+            Localidad localidad = localidadRepository.findFirstByNombreIgnoreCase(nombreParada)
                     .orElseGet(() -> {
                         Localidad nueva = new Localidad();
-                        nueva.setNombre(pDto.getNombre().trim());
+                        nueva.setNombre(nombreParada);
                         nueva.setMunicipio(pDto.getMunicipio() != null && !pDto.getMunicipio().isBlank() ? pDto.getMunicipio().trim() : "Apizaco");
-                        nueva.setLat(pDto.getLat());
-                        nueva.setLng(pDto.getLng());
+                        nueva.setLat(pDto.getLat() != null ? pDto.getLat() : java.math.BigDecimal.valueOf(19.4128));
+                        nueva.setLng(pDto.getLng() != null ? pDto.getLng() : java.math.BigDecimal.valueOf(-98.1428));
                         return localidadRepository.save(nueva);
                     });
 
@@ -117,9 +128,9 @@ public class RutaService {
             parada.setRuta(ruta);
             parada.setLocalidad(localidad);
             parada.setOrden(pDto.getOrden() != null ? pDto.getOrden() : orden);
-            parada.setLat(pDto.getLat());
-            parada.setLng(pDto.getLng());
-            parada.setReferencia(pDto.getReferencia() != null ? pDto.getReferencia().trim() : null);
+            parada.setLat(pDto.getLat() != null ? pDto.getLat() : java.math.BigDecimal.valueOf(19.4128));
+            parada.setLng(pDto.getLng() != null ? pDto.getLng() : java.math.BigDecimal.valueOf(-98.1428));
+            parada.setReferencia(pDto.getReferencia() != null && !pDto.getReferencia().isBlank() ? pDto.getReferencia().trim() : null);
             result.add(parada);
             orden++;
         }
