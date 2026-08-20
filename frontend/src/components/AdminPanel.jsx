@@ -358,7 +358,8 @@ export default function AdminPanel({
               </div>
             </div>
 
-            <div className="admin-table-card">
+            {/* Desktop Table View */}
+            <div className="admin-table-card desktop-only-table">
               <table className="admin-data-table">
                 <thead>
                   <tr>
@@ -375,7 +376,7 @@ export default function AdminPanel({
                   {rutas.map((ruta) => (
                     <tr key={ruta.id}>
                       <td>
-                        <div className="table-route-badge" style={{ backgroundColor: ruta.color || '#2F5233' }}>
+                        <div className="table-route-badge" style={{ backgroundColor: ruta.color || ruta.colorHex || '#2F5233' }}>
                           {ruta.numero}
                         </div>
                       </td>
@@ -425,6 +426,65 @@ export default function AdminPanel({
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile Cards View (< 768px) */}
+            <div className="admin-mobile-cards-list">
+              {rutas.map((ruta) => (
+                <div key={`mob-${ruta.id}`} className="admin-route-card-mobile">
+                  <div className="mob-card-top">
+                    <div className="mob-card-badge" style={{ backgroundColor: ruta.color || ruta.colorHex || '#2F5233' }}>
+                      <span className="mob-badge-lbl">Ruta</span>
+                      <span className="mob-badge-num">{ruta.numero}</span>
+                    </div>
+
+                    <div className="mob-card-title-col">
+                      <h4 className="mob-route-name">{ruta.nombre}</h4>
+                      <span className="mob-route-endpoints">
+                        {ruta.origen || ruta.paradas?.[0]?.nombre || 'Origen'} ➔ {ruta.destino || ruta.paradas?.[ruta.paradas?.length - 1]?.nombre || 'Destino'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mob-card-meta-grid">
+                    <div className="mob-meta-chip">
+                      <DollarSign size={13} className="chip-icon price" />
+                      <span>${Number(ruta.precio !== undefined ? ruta.precio : ruta.precioEstimado || 10).toFixed(2)} MXN</span>
+                    </div>
+                    <div className="mob-meta-chip">
+                      <Clock size={13} className="chip-icon" />
+                      <span>{ruta.duracionMin} min</span>
+                    </div>
+                    <div className="mob-meta-chip">
+                      <MapPin size={13} className="chip-icon" />
+                      <span>{ruta.paradas?.length || 0} paradas</span>
+                    </div>
+                    <div className="mob-meta-chip score">
+                      <span>⭐ {ruta.calificacionPromedio || '4.7'}</span>
+                    </div>
+                  </div>
+
+                  <div className="mob-card-actions">
+                    <button
+                      type="button"
+                      className="btn-mob-action-edit"
+                      onClick={() => handleStartEditRoute(ruta)}
+                    >
+                      <Edit3 size={15} />
+                      <span>Editar Ruta y Trazado</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn-mob-action-delete"
+                      onClick={() => handleDeleteRoute(ruta.id, ruta.numero)}
+                      title="Eliminar ruta"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}

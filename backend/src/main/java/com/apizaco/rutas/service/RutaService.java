@@ -66,7 +66,7 @@ public class RutaService {
         ruta.setNumero(dto.getNumero().trim());
         ruta.setNombre(dto.getNombre().trim());
         if (dto.getColorHex() != null && !dto.getColorHex().isBlank()) {
-            ruta.setColorHex(dto.getColorHex());
+            ruta.setColorHex(dto.getColorHex().trim());
         }
         ruta.setPrecioEstimado(dto.getPrecioEstimado());
         ruta.setDuracionMin(dto.getDuracionMin());
@@ -76,11 +76,12 @@ public class RutaService {
 
         if (dto.getParadas() != null && !dto.getParadas().isEmpty()) {
             ruta.getParadas().clear();
+            rutaRepository.saveAndFlush(ruta);
             List<Parada> nuevasParadas = construirParadas(ruta, dto.getParadas());
             ruta.getParadas().addAll(nuevasParadas);
         }
 
-        return rutaRepository.save(ruta);
+        return rutaRepository.saveAndFlush(ruta);
     }
 
     public Ruta toggleActiva(Long id) {

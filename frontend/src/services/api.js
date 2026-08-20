@@ -119,11 +119,14 @@ export async function buscarRutas(destino = '') {
       const backendRoutes = await response.json();
       isLive = true;
 
-      // Unir rutas de backend con las rutas locales que no estén en el backend
-      const backendKeys = new Set(backendRoutes.map(r => `${r.numero}-${r.nombre}`.toLowerCase()));
-      const extraLocales = localRoutes.filter(lr => !backendKeys.has(`${lr.numero}-${lr.nombre}`.toLowerCase()));
+      // Unir rutas de backend con rutas locales que no existan en el backend
+      const backendIds = new Set(backendRoutes.map(r => String(r.id)));
+      const backendNumbers = new Set(backendRoutes.map(r => String(r.numero).toLowerCase().trim()));
+      const extraLocales = localRoutes.filter(lr => 
+        !backendIds.has(String(lr.id)) && !backendNumbers.has(String(lr.numero).toLowerCase().trim())
+      );
 
-      combined = [...extraLocales, ...backendRoutes];
+      combined = [...backendRoutes, ...extraLocales];
     } else {
       combined = localRoutes;
     }
@@ -236,46 +239,53 @@ export async function actualizarRuta(id, rutaData) {
     if (response.ok) {
       updated = await response.json();
       isLive = true;
+    } else {
+      const errText = await response.text();
+      console.error('[Rutas API] Error actualizando en backend:', response.status, errText);
     }
   } catch (err) {
     console.warn('[Rutas API] Backend no respondió, actualizando en local:', err.message);
   }
 
   const routes = getLocalRoutes();
-  const index = routes.findIndex(r => String(r.id) === String(id));
+  const index = routes.findIndex(r => 
+    String(r.id) === String(id) || 
+    String(r.numero).toLowerCase() === String(rutaData.numero).toLowerCase()
+  );
 
-  if (!updated) {
-    const existing = index !== -1 ? routes[index] : {};
-    updated = {
-      ...existing,
-      id: id,
-      numero: rutaData.numero,
-      nombre: rutaData.nombre,
-      color: rutaData.colorHex || existing.color || '#10b981',
-      origen: rutaData.paradas?.[0]?.nombre || existing.origen || 'Base Inicial',
-      destino: rutaData.paradas?.[rutaData.paradas.length - 1]?.nombre || existing.destino || 'Base Final',
-      precio: Number(rutaData.precioEstimado) || existing.precio || 10.0,
-      duracionMin: Number(rutaData.duracionMin) || existing.duracionMin || 20,
-      activa: rutaData.activa ?? true,
-      paradas: (rutaData.paradas || []).map((p, idx) => ({
-        id: p.id || Date.now() + idx,
-        nombre: p.nombre || `Parada #${idx + 1}`,
-        referencia: p.referencia || '',
-        lat: Number(p.lat),
-        lng: Number(p.lng),
-        orden: idx + 1
-      }))
-    };
-  }
+  const fallbackUpdated = {
+    ...(index !== -1 ? routes[index] : {}),
+    id: id,
+    numero: rutaData.numero,
+    nombre: rutaData.nombre,
+    color: rutaData.colorHex || rutaData.color || '#2F5233',
+    colorHex: rutaData.colorHex || rutaData.color || '#2F5233',
+    origen: rutaData.paradas?.[0]?.nombre || 'Base Inicial',
+    destino: rutaData.paradas?.[rutaData.paradas.length - 1]?.nombre || 'Base Final',
+    precio: Number(rutaData.precioEstimado) || 10.0,
+    precioEstimado: Number(rutaData.precioEstimado) || 10.0,
+    duracionMin: Number(rutaData.duracionMin) || 20,
+    activa: rutaData.activa ?? true,
+    paradas: (rutaData.paradas || []).map((p, idx) => ({
+      id: p.id || Date.now() + idx,
+      nombre: p.nombre || `Parada #${idx + 1}`,
+      referencia: p.referencia || '',
+      lat: Number(p.lat),
+      lng: Number(p.lng),
+      orden: idx + 1
+    }))
+  };
+
+  const finalUpdated = updated ? { ...fallbackUpdated, ...updated } : fallbackUpdated;
 
   if (index !== -1) {
-    routes[index] = { ...routes[index], ...updated };
+    routes[index] = finalUpdated;
   } else {
-    routes.unshift(updated);
+    routes.unshift(finalUpdated);
   }
   saveLocalRoutes(routes);
 
-  return { data: updated, isLive };
+  return { data: finalUpdated, isLive };
 }
 
 /**

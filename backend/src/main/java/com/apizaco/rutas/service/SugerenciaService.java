@@ -66,7 +66,7 @@ public class SugerenciaService {
                 String nombre = (String) data.getOrDefault("nombre", sugerencia.getTitulo());
                 String colorHex = (String) data.getOrDefault("colorHex", "#2F5233");
                 Double precio = Double.valueOf(data.getOrDefault("precioEstimado", 10.0).toString());
-                Integer duracion = Integer.valueOf(data.getOrDefault("duracionMin", 20).toString());
+                Integer duracion = (int) Math.round(Double.parseDouble(data.getOrDefault("duracionMin", 20).toString()));
 
                 List<Map<String, Object>> paradasList = (List<Map<String, Object>>) data.get("paradas");
                 List<ParadaCreateDTO> paradasDto = new ArrayList<>();
