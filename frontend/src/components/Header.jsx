@@ -34,11 +34,11 @@ export default function Header({
         <div className="header-actions">
           <div
             className={`status-pill ${isLive ? 'live' : 'mock'}`}
-            title={isLive ? 'Conectado a MySQL + Spring Boot' : 'Almacenamiento Local (Modo Mock Activo)'}
+            title={isLive ? 'Conectado a MySQL + Spring Boot' : 'Esperando respuesta del servidor MySQL...'}
           >
             <span className="status-dot"></span>
             <Database size={14} />
-            <span>{isLive ? 'MySQL Online' : 'Modo Offline / Local'}</span>
+            <span>{isLive ? 'MySQL Online' : 'Conectando a BD...'}</span>
           </div>
 
           <div className="stats-counter-pill">
