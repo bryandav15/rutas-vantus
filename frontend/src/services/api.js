@@ -1,6 +1,6 @@
 import { mockRoutes } from '../data/mockRoutes';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = '/api';
 
 const STORAGE_KEY_ROUTES = 'rutas_apizaco_local_routes';
 const STORAGE_KEY_SUGGESTIONS = 'rutas_apizaco_local_suggestions';
