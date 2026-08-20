@@ -6,6 +6,7 @@ import com.apizaco.rutas.model.Localidad;
 import com.apizaco.rutas.model.Parada;
 import com.apizaco.rutas.model.Ruta;
 import com.apizaco.rutas.repository.LocalidadRepository;
+import com.apizaco.rutas.repository.ParadaRepository;
 import com.apizaco.rutas.repository.RutaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,10 +21,12 @@ public class RutaService {
 
     private final RutaRepository rutaRepository;
     private final LocalidadRepository localidadRepository;
+    private final ParadaRepository paradaRepository;
 
-    public RutaService(RutaRepository rutaRepository, LocalidadRepository localidadRepository) {
+    public RutaService(RutaRepository rutaRepository, LocalidadRepository localidadRepository, ParadaRepository paradaRepository) {
         this.rutaRepository = rutaRepository;
         this.localidadRepository = localidadRepository;
+        this.paradaRepository = paradaRepository;
     }
 
     @Transactional(readOnly = true)
@@ -84,13 +87,19 @@ public class RutaService {
             ruta.setActiva(dto.getActiva());
         }
 
-        if (dto.getParadas() != null && !dto.getParadas().isEmpty()) {
+        if (dto.getParadas() != null) {
+            // 1. Limpiar la colección existente y flushear las eliminaciones a MySQL
             ruta.getParadas().clear();
-            List<Parada> nuevasParadas = construirParadas(ruta, dto.getParadas());
-            ruta.getParadas().addAll(nuevasParadas);
+            rutaRepository.saveAndFlush(ruta);
+
+            // 2. Construir e insertar las nuevas paradas
+            if (!dto.getParadas().isEmpty()) {
+                List<Parada> nuevasParadas = construirParadas(ruta, dto.getParadas());
+                ruta.getParadas().addAll(nuevasParadas);
+            }
         }
 
-        return rutaRepository.save(ruta);
+        return rutaRepository.saveAndFlush(ruta);
     }
 
     public Ruta toggleActiva(Long id) {
@@ -119,8 +128,8 @@ public class RutaService {
                         Localidad nueva = new Localidad();
                         nueva.setNombre(nombreParada);
                         nueva.setMunicipio(pDto.getMunicipio() != null && !pDto.getMunicipio().isBlank() ? pDto.getMunicipio().trim() : "Apizaco");
-                        nueva.setLat(pDto.getLat() != null ? pDto.getLat() : java.math.BigDecimal.valueOf(19.4128));
-                        nueva.setLng(pDto.getLng() != null ? pDto.getLng() : java.math.BigDecimal.valueOf(-98.1428));
+                        nueva.setLat(pDto.getLat() != null ? pDto.getLat() : java.math.BigDecimal.valueOf(19.4128000));
+                        nueva.setLng(pDto.getLng() != null ? pDto.getLng() : java.math.BigDecimal.valueOf(-98.1428000));
                         return localidadRepository.save(nueva);
                     });
 
@@ -128,8 +137,8 @@ public class RutaService {
             parada.setRuta(ruta);
             parada.setLocalidad(localidad);
             parada.setOrden(pDto.getOrden() != null ? pDto.getOrden() : orden);
-            parada.setLat(pDto.getLat() != null ? pDto.getLat() : java.math.BigDecimal.valueOf(19.4128));
-            parada.setLng(pDto.getLng() != null ? pDto.getLng() : java.math.BigDecimal.valueOf(-98.1428));
+            parada.setLat(pDto.getLat() != null ? pDto.getLat() : java.math.BigDecimal.valueOf(19.4128000));
+            parada.setLng(pDto.getLng() != null ? pDto.getLng() : java.math.BigDecimal.valueOf(-98.1428000));
             parada.setReferencia(pDto.getReferencia() != null && !pDto.getReferencia().isBlank() ? pDto.getReferencia().trim() : null);
             result.add(parada);
             orden++;
