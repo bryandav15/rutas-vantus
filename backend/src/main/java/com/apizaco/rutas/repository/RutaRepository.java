@@ -11,7 +11,9 @@ import java.util.List;
 @Repository
 public interface RutaRepository extends JpaRepository<Ruta, Long> {
 
-    @Query("SELECT DISTINCT r FROM Ruta r LEFT JOIN r.paradas p LEFT JOIN p.localidad l " +
+    @Query("SELECT DISTINCT r FROM Ruta r " +
+           "JOIN r.paradas p " +
+           "JOIN p.localidad l " +
            "WHERE (LOWER(l.nombre) LIKE LOWER(CONCAT('%', :destino, '%')) OR LOWER(r.nombre) LIKE LOWER(CONCAT('%', :destino, '%'))) " +
            "AND r.activa = true")
     List<Ruta> buscarPorDestino(@Param("destino") String destino);

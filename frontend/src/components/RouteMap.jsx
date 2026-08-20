@@ -6,7 +6,7 @@ import { Layers, MapPin, Navigation, Info } from 'lucide-react';
 
 const APIZACO_CENTER = [19.4128, -98.1428];
 
-function MapBoundsUpdater({ points }) {
+function MapBoundsUpdater({ points, mobileTab }) {
   const map = useMap();
 
   useEffect(() => {
@@ -48,6 +48,21 @@ function MapBoundsUpdater({ points }) {
     };
   }, [map]);
 
+  // Re-invalidate when mobile tab switches to map
+  useEffect(() => {
+    if (mobileTab === 'map') {
+      // Multiple delays to ensure CSS transition from display:none to flex is complete
+      const t1 = setTimeout(() => map.invalidateSize(), 50);
+      const t2 = setTimeout(() => map.invalidateSize(), 200);
+      const t3 = setTimeout(() => map.invalidateSize(), 500);
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+        clearTimeout(t3);
+      };
+    }
+  }, [mobileTab, map]);
+
   return null;
 }
 
@@ -76,7 +91,7 @@ function createCustomMarkerIcon(index, total, color, stopName) {
   });
 }
 
-export default function RouteMap({ selectedRoute, allRoutes = [] }) {
+export default function RouteMap({ selectedRoute, allRoutes = [], mobileTab }) {
   const mapPoints = useMemo(() => {
     if (selectedRoute?.paradas?.length) {
       return selectedRoute.paradas.map((p) => ({
@@ -127,7 +142,7 @@ export default function RouteMap({ selectedRoute, allRoutes = [] }) {
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
 
-        <MapBoundsUpdater points={mapPoints} />
+        <MapBoundsUpdater points={mapPoints} mobileTab={mobileTab} />
 
         {selectedRoute ? (
           <>

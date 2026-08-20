@@ -24,12 +24,18 @@ public class RutaController {
 
     @GetMapping("/buscar")
     public List<RutaResponseDTO> buscar(@RequestParam(required = false) String destino) {
-        return rutaService.buscarRutasDTO(destino);
+        return rutaService.buscarRutas(destino)
+                .stream()
+                .map(RutaResponseDTO::fromEntity)
+                .toList();
     }
 
     @GetMapping
     public List<RutaResponseDTO> listarTodas() {
-        return rutaService.listarTodasDTO();
+        return rutaService.listarTodas()
+                .stream()
+                .map(RutaResponseDTO::fromEntity)
+                .toList();
     }
 
     @GetMapping("/{id}")

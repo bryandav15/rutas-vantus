@@ -206,7 +206,7 @@ export default function App() {
 
           {/* Right Side: Interactive Map */}
           <section className={`map-panel ${mobileTab === 'map' ? 'mobile-visible' : 'mobile-hidden'}`}>
-            <RouteMap selectedRoute={selectedRoute} allRoutes={rutas} />
+            <RouteMap selectedRoute={selectedRoute} allRoutes={rutas} mobileTab={mobileTab} />
           </section>
         </main>
       )}

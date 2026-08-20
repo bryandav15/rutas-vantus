@@ -105,7 +105,7 @@ export async function buscarRutas(destino = '') {
       : `${API_BASE_URL}/rutas/buscar`;
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
 
     const response = await fetch(url, {
       method: 'GET',
@@ -125,12 +125,9 @@ export async function buscarRutas(destino = '') {
 
       combined = [...extraLocales, ...backendRoutes];
     } else {
-      console.warn('Backend no retornó 200 OK:', response.status);
       combined = localRoutes;
-      isLive = false;
     }
   } catch (error) {
-    console.error('Error al conectar con backend MySQL:', error);
     combined = localRoutes;
     isLive = false;
   }
@@ -464,8 +461,8 @@ export async function calificarRuta(rutaId, calificacionData) {
     route.ultimasResenias.unshift(nuevaResenia);
 
     const totalCount = (route.totalCalificaciones || 0) + 1;
-    const prevTotalScore = ((route.calificacionPromedio || 4.5) * (route.totalCalificaciones || 1));
-    const newAvg = (prevTotalScore + Number(calificacionData.puntuacion)) / (totalCount + 1);
+    const prevTotalScore = ((route.calificacionPromedio || 4.5) * (route.totalCalificaciones || 0));
+    const newAvg = (prevTotalScore + Number(calificacionData.puntuacion)) / totalCount;
 
     route.totalCalificaciones = totalCount;
     route.calificacionPromedio = Math.round(newAvg * 10) / 10;
