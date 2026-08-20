@@ -31,7 +31,7 @@ public class Ruta {
     @Column(nullable = false)
     private Boolean activa = true;
 
-    @OneToMany(mappedBy = "ruta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "ruta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @OrderBy("orden ASC")
     private List<Parada> paradas = new ArrayList<>();
 

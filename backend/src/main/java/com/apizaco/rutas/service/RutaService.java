@@ -37,6 +37,18 @@ public class RutaService {
     @Transactional(readOnly = true)
     public List<com.apizaco.rutas.dto.RutaResponseDTO> buscarRutasDTO(String destino) {
         List<Ruta> rutas = buscarRutas(destino);
+        for (Ruta r : rutas) {
+            if (r.getParadas() != null) {
+                for (Parada p : r.getParadas()) {
+                    if (p.getLocalidad() != null) {
+                        p.getLocalidad().getNombre();
+                    }
+                }
+            }
+            if (r.getCalificaciones() != null) {
+                r.getCalificaciones().size();
+            }
+        }
         return rutas.stream().map(com.apizaco.rutas.dto.RutaResponseDTO::fromEntity).toList();
     }
 
@@ -47,7 +59,20 @@ public class RutaService {
 
     @Transactional(readOnly = true)
     public List<com.apizaco.rutas.dto.RutaResponseDTO> listarTodasDTO() {
-        return rutaRepository.findAll().stream().map(com.apizaco.rutas.dto.RutaResponseDTO::fromEntity).toList();
+        List<Ruta> rutas = rutaRepository.findAll();
+        for (Ruta r : rutas) {
+            if (r.getParadas() != null) {
+                for (Parada p : r.getParadas()) {
+                    if (p.getLocalidad() != null) {
+                        p.getLocalidad().getNombre();
+                    }
+                }
+            }
+            if (r.getCalificaciones() != null) {
+                r.getCalificaciones().size();
+            }
+        }
+        return rutas.stream().map(com.apizaco.rutas.dto.RutaResponseDTO::fromEntity).toList();
     }
 
     @Transactional(readOnly = true)
