@@ -105,6 +105,14 @@ public class RutaResponseDTO {
         this.color = color;
     }
 
+    public String getColorHex() {
+        return color;
+    }
+
+    public void setColorHex(String colorHex) {
+        this.color = colorHex;
+    }
+
     public String getNombre() {
         return nombre;
     }

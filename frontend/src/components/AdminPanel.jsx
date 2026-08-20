@@ -85,7 +85,7 @@ export default function AdminPanel({
   const [isSaving, setIsSaving] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState(null);
 
-  const COLOR_PALETTE = ['#2F5233', '#1e40af', '#b45309', '#7c2d12', '#6b21a8', '#0f766e', '#be123c'];
+  const COLOR_PALETTE = ['#2F5233', '#1e40af', '#b45309', '#7c2d12', '#6b21a8', '#0f766e', '#be123c', '#e11d48', '#0284c7', '#059669', '#d97706'];
 
   useEffect(() => {
     loadSuggestions();
@@ -213,10 +213,12 @@ export default function AdminPanel({
     setFeedbackMsg(null);
 
     try {
+      const cleanColor = (colorHex && colorHex.trim().startsWith('#') ? colorHex.trim() : '#2F5233');
       const routePayload = {
         numero: numero.trim(),
         nombre: nombre.trim(),
-        colorHex,
+        colorHex: cleanColor,
+        color: cleanColor,
         precioEstimado: parseFloat(precioEstimado),
         duracionMin: parseInt(duracionMin, 10),
         activa: true,
@@ -538,18 +540,33 @@ export default function AdminPanel({
                     </div>
 
                     <div className="form-group flex-1">
-                      <label className="form-label">Color identificador</label>
+                      <label className="form-label">Color identificador de la ruta</label>
                       <div className="color-picker-row">
                         {COLOR_PALETTE.map((col) => (
                           <button
                             type="button"
                             key={col}
-                            className={`color-dot-btn ${colorHex === col ? 'selected' : ''}`}
+                            className={`color-dot-btn ${(colorHex || '').toLowerCase() === col.toLowerCase() ? 'selected' : ''}`}
                             style={{ backgroundColor: col }}
                             onClick={() => setColorHex(col)}
+                            title={`Seleccionar color ${col}`}
                           />
                         ))}
+                        <label className="custom-color-picker-wrapper" title="Elegir cualquier color personalizado">
+                          <input
+                            type="color"
+                            value={colorHex && colorHex.startsWith('#') && colorHex.length === 7 ? colorHex : '#2F5233'}
+                            onChange={(e) => setColorHex(e.target.value)}
+                            className="custom-color-native-input"
+                          />
+                          <span className="custom-color-preview" style={{ backgroundColor: colorHex }}>
+                            🎨
+                          </span>
+                        </label>
                       </div>
+                      <span className="selected-color-hex-tag" style={{ color: colorHex }}>
+                        Color activo: <strong>{colorHex}</strong>
+                      </span>
                     </div>
                   </div>
 

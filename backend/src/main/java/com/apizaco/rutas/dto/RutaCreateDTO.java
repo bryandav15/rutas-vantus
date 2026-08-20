@@ -66,6 +66,14 @@ public class RutaCreateDTO {
         this.colorHex = colorHex;
     }
 
+    public String getColor() {
+        return colorHex;
+    }
+
+    public void setColor(String color) {
+        this.colorHex = color;
+    }
+
     public BigDecimal getPrecioEstimado() {
         return precioEstimado;
     }

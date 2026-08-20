@@ -48,7 +48,8 @@ public class RutaService {
         Ruta ruta = new Ruta();
         ruta.setNumero(dto.getNumero().trim());
         ruta.setNombre(dto.getNombre().trim());
-        ruta.setColorHex(dto.getColorHex() != null && !dto.getColorHex().isBlank() ? dto.getColorHex() : "#2F5233");
+        String col = dto.getColorHex() != null && !dto.getColorHex().isBlank() ? dto.getColorHex() : dto.getColor();
+        ruta.setColorHex(col != null && !col.isBlank() ? col.trim() : "#2F5233");
         ruta.setPrecioEstimado(dto.getPrecioEstimado());
         ruta.setDuracionMin(dto.getDuracionMin());
         ruta.setActiva(dto.getActiva() != null ? dto.getActiva() : true);
@@ -65,8 +66,9 @@ public class RutaService {
 
         ruta.setNumero(dto.getNumero().trim());
         ruta.setNombre(dto.getNombre().trim());
-        if (dto.getColorHex() != null && !dto.getColorHex().isBlank()) {
-            ruta.setColorHex(dto.getColorHex().trim());
+        String col = dto.getColorHex() != null && !dto.getColorHex().isBlank() ? dto.getColorHex() : dto.getColor();
+        if (col != null && !col.isBlank()) {
+            ruta.setColorHex(col.trim());
         }
         ruta.setPrecioEstimado(dto.getPrecioEstimado());
         ruta.setDuracionMin(dto.getDuracionMin());
