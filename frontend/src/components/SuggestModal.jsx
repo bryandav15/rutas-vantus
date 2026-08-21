@@ -44,6 +44,7 @@ function createCitizenPin(index, total) {
 
 export default function SuggestModal({ isOpen, onClose, onSubmitted }) {
   const [activeMode, setActiveMode] = useState('MAP_ROUTE');
+  const [mobileSubTab, setMobileSubTab] = useState('FORM'); // 'FORM' | 'MAP'
 
   // Quick report state
   const [tipo, setTipo] = useState('CAMBIO_TARIFA');
@@ -259,209 +260,254 @@ export default function SuggestModal({ isOpen, onClose, onSubmitted }) {
 
             {/* MODE 1: TRACE ROUTE & BASES ON MINI MAP */}
             {activeMode === 'MAP_ROUTE' ? (
-              <div className="citizen-route-grid">
-                {/* Left Side: Form Info */}
-                <div className="citizen-form-col">
-                  <div className="form-row">
-                    <div className="form-group flex-1">
-                      <label className="form-label">Número o Letra de Combi *</label>
-                      <input
-                        type="text"
-                        className="form-input"
-                        placeholder="Ej. Texcalac, 16, San Cosme"
-                        value={numeroRuta}
-                        onChange={(e) => setNumeroRuta(e.target.value)}
-                        required
-                      />
-                    </div>
+              <>
+                {/* Mobile Sub-Navigation Tabs */}
+                <div className="citizen-mobile-subnav">
+                  <button
+                    type="button"
+                    className={`btn-subnav-pill ${mobileSubTab === 'FORM' ? 'active' : ''}`}
+                    onClick={() => setMobileSubTab('FORM')}
+                  >
+                    <Bus size={14} />
+                    <span>1. Datos de la Combi</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn-subnav-pill ${mobileSubTab === 'MAP' ? 'active' : ''}`}
+                    onClick={() => setMobileSubTab('MAP')}
+                  >
+                    <MapPin size={14} />
+                    <span>2. Marcar en Mapa ({paradasTrazadas.length})</span>
+                  </button>
+                </div>
 
-                    <div className="form-group flex-1">
-                      <label className="form-label">Costo Pasaje ($ MXN) *</label>
-                      <input
-                        type="number"
-                        step="0.50"
-                        min="1"
-                        className="form-input"
-                        value={precioPasaje}
-                        onChange={(e) => setPrecioPasaje(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Nombre del Recorrido *</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      placeholder="Ej. Texcalac - Apizaco Centro por Carretera Federal"
-                      value={nombreRuta}
-                      onChange={(e) => setNombreRuta(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-row">
-                    <div className="form-group flex-1">
-                      <label className="form-label">Tiempo Aprox (Minutos)</label>
-                      <input
-                        type="number"
-                        min="5"
-                        className="form-input"
-                        value={duracionAprox}
-                        onChange={(e) => setDuracionAprox(e.target.value)}
-                      />
-                    </div>
-
-                    <div className="form-group flex-1">
-                      <label className="form-label">Tu Nombre o Alias</label>
-                      <input
-                        type="text"
-                        className="form-input"
-                        placeholder="Ej. Vecino de Texcalac"
-                        value={nombreContacto}
-                        onChange={(e) => setNombreContacto(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Stops List */}
-                  <div className="citizen-stops-box">
-                    <div className="citizen-stops-title">
-                      <div>
-                        <span>Bases y Paradas ({paradasTrazadas.length})</span>
+                <div className="citizen-route-grid">
+                  {/* Left Side: Form Info */}
+                  <div className={`citizen-form-col ${mobileSubTab === 'FORM' ? 'mob-show' : 'mob-hide'}`}>
+                    <div className="form-row">
+                      <div className="form-group flex-1">
+                        <label className="form-label">Número o Letra de Combi *</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          placeholder="Ej. Texcalac, 16, San Cosme"
+                          value={numeroRuta}
+                          onChange={(e) => setNumeroRuta(e.target.value)}
+                          required
+                        />
                       </div>
 
-                      {paradasTrazadas.length > 0 && (
-                        <div className="citizen-stops-actions">
-                          {paradasTrazadas.length >= 2 && (
+                      <div className="form-group flex-1">
+                        <label className="form-label">Costo Pasaje ($ MXN) *</label>
+                        <input
+                          type="number"
+                          step="0.50"
+                          min="1"
+                          className="form-input"
+                          value={precioPasaje}
+                          onChange={(e) => setPrecioPasaje(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label">Nombre del Recorrido *</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        placeholder="Ej. Texcalac - Apizaco Centro por Carretera Federal"
+                        value={nombreRuta}
+                        onChange={(e) => setNombreRuta(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="form-row">
+                      <div className="form-group flex-1">
+                        <label className="form-label">Tiempo Aprox (Minutos)</label>
+                        <input
+                          type="number"
+                          min="5"
+                          className="form-input"
+                          value={duracionAprox}
+                          onChange={(e) => setDuracionAprox(e.target.value)}
+                        />
+                      </div>
+
+                      <div className="form-group flex-1">
+                        <label className="form-label">Tu Nombre o Alias</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          placeholder="Ej. Vecino de Texcalac"
+                          value={nombreContacto}
+                          onChange={(e) => setNombreContacto(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Stops List */}
+                    <div className="citizen-stops-box">
+                      <div className="citizen-stops-title">
+                        <div>
+                          <span>Bases y Paradas ({paradasTrazadas.length})</span>
+                        </div>
+
+                        {paradasTrazadas.length > 0 && (
+                          <div className="citizen-stops-actions">
+                            {paradasTrazadas.length >= 2 && (
+                              <button
+                                type="button"
+                                className="btn-tiny-link"
+                                onClick={handleReverseRoute}
+                                title="Invertir sentido de salida y llegada"
+                              >
+                                <ArrowUpDown size={12} />
+                                <span>Invertir</span>
+                              </button>
+                            )}
                             <button
                               type="button"
-                              className="btn-tiny-link"
-                              onClick={handleReverseRoute}
-                              title="Invertir sentido de salida y llegada"
+                              className="btn-tiny-link danger"
+                              onClick={handleClearStops}
+                              title="Borrar puntos y empezar de nuevo"
                             >
-                              <ArrowUpDown size={12} />
-                              <span>Invertir</span>
+                              <RotateCcw size={12} />
+                              <span>Limpiar</span>
                             </button>
-                          )}
-                          <button
-                            type="button"
-                            className="btn-tiny-link danger"
-                            onClick={handleClearStops}
-                            title="Borrar puntos y empezar de nuevo"
-                          >
-                            <RotateCcw size={12} />
-                            <span>Limpiar</span>
-                          </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {paradasTrazadas.length === 0 ? (
+                        <div className="empty-stops-prompt mini">
+                          <MapPin size={18} />
+                          <p>Haz clic o toca en el mapa donde inicia la combi (su primera base).</p>
+                        </div>
+                      ) : (
+                        <div className="citizen-stops-scroll">
+                          {paradasTrazadas.map((p, idx) => {
+                            const isFirst = idx === 0;
+                            const isLast = idx === paradasTrazadas.length - 1 && paradasTrazadas.length > 1;
+
+                            return (
+                              <div key={idx} className={`citizen-stop-row ${isFirst ? 'is-start' : isLast ? 'is-end' : ''}`}>
+                                <div className="stop-row-top">
+                                  <span className={`citizen-stop-badge ${isFirst ? 'start' : isLast ? 'end' : ''}`}>
+                                    {isFirst ? 'ORIGEN / BASE' : isLast ? 'DESTINO / BASE' : `PARADA ${idx + 1}`}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    className="btn-remove-stop"
+                                    onClick={() => handleRemoveStop(idx)}
+                                    title="Quitar este punto"
+                                  >
+                                    <Trash2 size={13} />
+                                  </button>
+                                </div>
+
+                                <input
+                                  type="text"
+                                  className="citizen-stop-input bold"
+                                  value={p.nombre}
+                                  onChange={(e) => handleUpdateStopName(idx, e.target.value)}
+                                  placeholder={isFirst ? 'Nombre de la Base de Salida' : isLast ? 'Nombre de la Base de Llegada' : 'Nombre de la parada...'}
+                                />
+                                <input
+                                  type="text"
+                                  className="citizen-stop-ref-input"
+                                  value={p.referencia || ''}
+                                  onChange={(e) => handleUpdateStopRef(idx, e.target.value)}
+                                  placeholder="📍 Calle o referencia exacta"
+                                />
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
                     </div>
 
-                    {paradasTrazadas.length === 0 ? (
-                      <div className="empty-stops-prompt mini">
-                        <MapPin size={18} />
-                        <p>Haz clic en el mapa donde inicia la combi (su primera base).</p>
-                      </div>
-                    ) : (
-                      <div className="citizen-stops-scroll">
-                        {paradasTrazadas.map((p, idx) => {
-                          const isFirst = idx === 0;
-                          const isLast = idx === paradasTrazadas.length - 1 && paradasTrazadas.length > 1;
-
-                          return (
-                            <div key={idx} className={`citizen-stop-row ${isFirst ? 'is-start' : isLast ? 'is-end' : ''}`}>
-                              <div className="stop-row-top">
-                                <span className={`citizen-stop-badge ${isFirst ? 'start' : isLast ? 'end' : ''}`}>
-                                  {isFirst ? 'ORIGEN / BASE' : isLast ? 'DESTINO / BASE' : `PARADA ${idx + 1}`}
-                                </span>
-                                <button
-                                  type="button"
-                                  className="btn-remove-stop"
-                                  onClick={() => handleRemoveStop(idx)}
-                                  title="Quitar este punto"
-                                >
-                                  <Trash2 size={13} />
-                                </button>
-                              </div>
-
-                              <input
-                                type="text"
-                                className="citizen-stop-input bold"
-                                value={p.nombre}
-                                onChange={(e) => handleUpdateStopName(idx, e.target.value)}
-                                placeholder={isFirst ? 'Nombre de la Base de Salida' : isLast ? 'Nombre de la Base de Llegada' : 'Nombre de la parada...'}
-                              />
-                              <input
-                                type="text"
-                                className="citizen-stop-ref-input"
-                                value={p.referencia || ''}
-                                onChange={(e) => handleUpdateStopRef(idx, e.target.value)}
-                                placeholder="📍 Calle o referencia exacta (ej. Frente al parque, junto al OXXO)"
-                              />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Right Side: Interactive Mini Map */}
-                <div className="citizen-minimap-col">
-                  <div className="minimap-banner">
-                    <Navigation size={14} />
-                    <span>
-                      {paradasTrazadas.length === 0
-                        ? 'Haz clic en el mapa para marcar el punto exacto de la base de salida.'
-                        : `Llevas ${paradasTrazadas.length} puntos. Haz clic para agregar el siguiente punto de la ruta.`}
-                    </span>
-                  </div>
-
-                  <div className="minimap-container">
-                    <MapContainer
-                      center={APIZACO_CENTER}
-                      zoom={13}
-                      scrollWheelZoom={true}
-                      className="citizen-leaflet-canvas"
+                    {/* Mobile Button to jump to Map */}
+                    <button
+                      type="button"
+                      className="btn-next-step-map mob-only"
+                      onClick={() => setMobileSubTab('MAP')}
                     >
-                      <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-                        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-                      />
-                      <MiniMapClickHandler onMapClick={handleMapClick} />
+                      <MapIcon size={16} />
+                      <span>Ir al Mapa para trazar puntos ({paradasTrazadas.length}) ➔</span>
+                    </button>
+                  </div>
 
-                      {paradasTrazadas.length >= 2 && (
-                        <Polyline
-                          positions={paradasTrazadas.map((p) => [p.lat, p.lng])}
-                          pathOptions={{
-                            color: '#2563eb',
-                            weight: 5,
-                            dashArray: '5, 5',
-                            lineCap: 'round'
-                          }}
+                  {/* Right Side: Interactive Mini Map */}
+                  <div className={`citizen-minimap-col ${mobileSubTab === 'MAP' ? 'mob-show' : 'mob-hide'}`}>
+                    <div className="minimap-banner">
+                      <Navigation size={14} />
+                      <span>
+                        {paradasTrazadas.length === 0
+                          ? 'Toca en el mapa para fijar la base de salida.'
+                          : `Llevas ${paradasTrazadas.length} puntos. Toca para añadir la siguiente parada.`}
+                      </span>
+                    </div>
+
+                    <div className="minimap-container">
+                      <MapContainer
+                        center={APIZACO_CENTER}
+                        zoom={13}
+                        scrollWheelZoom={true}
+                        className="citizen-leaflet-canvas"
+                      >
+                        <TileLayer
+                          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+                          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
                         />
-                      )}
+                        <MiniMapClickHandler onMapClick={handleMapClick} />
 
-                      {paradasTrazadas.map((p, idx) => (
-                        <Marker
-                          key={`cit-p-${idx}`}
-                          position={[p.lat, p.lng]}
-                          icon={createCitizenPin(idx, paradasTrazadas.length)}
-                        >
-                          <Popup>
-                            <div className="citizen-popup">
-                              <strong>{idx === 0 ? '🟢 Base de Origen' : idx === paradasTrazadas.length - 1 ? '🔴 Base de Destino' : `Parada #${idx + 1}`}</strong>
-                              <h4>{p.nombre}</h4>
-                              {p.referencia && <p className="popup-ref-note">📍 {p.referencia}</p>}
-                            </div>
-                          </Popup>
-                        </Marker>
-                      ))}
-                    </MapContainer>
+                        {paradasTrazadas.length >= 2 && (
+                          <Polyline
+                            positions={paradasTrazadas.map((p) => [p.lat, p.lng])}
+                            pathOptions={{
+                              color: '#2563eb',
+                              weight: 5,
+                              dashArray: '5, 5',
+                              lineCap: 'round'
+                            }}
+                          />
+                        )}
+
+                        {paradasTrazadas.map((p, idx) => (
+                          <Marker
+                            key={`cit-p-${idx}`}
+                            position={[p.lat, p.lng]}
+                            icon={createCitizenPin(idx, paradasTrazadas.length)}
+                          >
+                            <Popup>
+                              <div className="citizen-popup">
+                                <strong>{idx === 0 ? '🟢 Base de Origen' : idx === paradasTrazadas.length - 1 ? '🔴 Base de Destino' : `Parada #${idx + 1}`}</strong>
+                                <h4>{p.nombre}</h4>
+                                {p.referencia && <p className="popup-ref-note">📍 {p.referencia}</p>}
+                              </div>
+                            </Popup>
+                          </Marker>
+                        ))}
+                      </MapContainer>
+                    </div>
+
+                    <div className="mob-back-to-form-row mob-only">
+                      <button
+                        type="button"
+                        className="btn-prev-step-form"
+                        onClick={() => setMobileSubTab('FORM')}
+                      >
+                        ⬅️ Volver a Datos
+                      </button>
+                      <span className="mob-stops-counter-tag">
+                        📍 {paradasTrazadas.length} {paradasTrazadas.length === 1 ? 'punto marcado' : 'puntos marcados'}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </>
             ) : (
               /* MODE 2: QUICK FARE / NOTICE REPORT */
               <div className="quick-report-grid">
