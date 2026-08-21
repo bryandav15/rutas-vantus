@@ -34,8 +34,9 @@ export default function Header({
         </div>
 
         <div className="header-actions">
+          {/* Oculto en celular para maximizar espacio de scroll de rutas */}
           <div
-            className={`status-pill ${isLive ? 'live' : 'mock'}`}
+            className={`status-pill desktop-only ${isLive ? 'live' : 'mock'}`}
             title={isLive ? 'Conectado a MySQL + Spring Boot' : 'Esperando respuesta del servidor MySQL...'}
           >
             <span className="status-dot"></span>
@@ -43,14 +44,14 @@ export default function Header({
             <span>{isLive ? 'MySQL Online' : 'Conectando a BD...'}</span>
           </div>
 
-          <div className="stats-counter-pill">
+          <div className="stats-counter-pill desktop-only">
             <MapPin size={14} className="counter-icon" />
             <span>
               <strong>{totalRutas}</strong> {totalRutas === 1 ? 'ruta' : 'rutas'}
             </span>
           </div>
 
-          {/* Botón para que la gente envíe sugerencias */}
+          {/* Botón para que la gente envíe sugerencias (Visible y reubicado en móvil) */}
           <button
             type="button"
             className="btn-header-suggest"
@@ -58,13 +59,13 @@ export default function Header({
             title="Aportar cambio de pasaje o sugerir ruta"
           >
             <MessageSquarePlus size={15} />
-            <span>Sugerir / Reportar</span>
+            <span>Sugerir</span>
           </button>
 
-          {/* Botón para alternar a Modo Admin */}
+          {/* Botón para alternar a Modo Admin (Visible solo en desktop o cuando está autenticado) */}
           <button
             type="button"
-            className={`btn-header-admin ${isAdminMode ? 'active' : ''}`}
+            className={`btn-header-admin desktop-only ${isAdminMode ? 'active' : ''}`}
             onClick={onToggleAdmin}
             title={isAdminMode ? 'Cerrar vista de administración' : 'Abrir Panel de Administrador (Protegido)'}
           >
