@@ -1,13 +1,15 @@
 import React from 'react';
-import { Bus, MapPin, Database, MessageSquarePlus, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { Bus, MapPin, Database, MessageSquarePlus, ShieldCheck, LogOut } from 'lucide-react';
 import logoVainitius from '../assets/logo-vainitius.svg';
 
 export default function Header({
   isLive,
   totalRutas,
   isAdminMode,
+  isAuthenticated,
   onToggleAdmin,
-  onOpenSuggest
+  onOpenSuggest,
+  onLogoutAdmin
 }) {
   return (
     <header className="app-header">
@@ -64,11 +66,24 @@ export default function Header({
             type="button"
             className={`btn-header-admin ${isAdminMode ? 'active' : ''}`}
             onClick={onToggleAdmin}
-            title={isAdminMode ? 'Salir del modo admin' : 'Abrir Panel de Administrador'}
+            title={isAdminMode ? 'Cerrar vista de administración' : 'Abrir Panel de Administrador (Protegido)'}
           >
             <ShieldCheck size={16} />
             <span>{isAdminMode ? 'Cerrar Admin' : 'Panel Admin'}</span>
           </button>
+
+          {/* Botón de Logout cuando está autenticado */}
+          {isAuthenticated && (
+            <button
+              type="button"
+              className="btn-header-logout"
+              onClick={onLogoutAdmin}
+              title="Cerrar sesión de Administrador"
+            >
+              <LogOut size={15} />
+              <span>Salir</span>
+            </button>
+          )}
         </div>
       </div>
     </header>

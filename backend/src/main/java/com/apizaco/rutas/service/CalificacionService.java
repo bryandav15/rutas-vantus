@@ -5,6 +5,7 @@ import com.apizaco.rutas.model.Calificacion;
 import com.apizaco.rutas.model.Ruta;
 import com.apizaco.rutas.repository.CalificacionRepository;
 import com.apizaco.rutas.repository.RutaRepository;
+import com.apizaco.rutas.util.SecuritySanitizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,8 +30,9 @@ public class CalificacionService {
         Calificacion cal = new Calificacion();
         cal.setRuta(ruta);
         cal.setPuntuacion(dto.getPuntuacion());
-        cal.setComentario(dto.getComentario());
-        cal.setNombreUsuario(dto.getNombreUsuario() != null && !dto.getNombreUsuario().isBlank() ? dto.getNombreUsuario().trim() : "Pasajero");
+        cal.setComentario(SecuritySanitizer.sanitizarTexto(dto.getComentario()));
+        String usuarioLimpio = SecuritySanitizer.sanitizarTexto(dto.getNombreUsuario());
+        cal.setNombreUsuario(usuarioLimpio != null && !usuarioLimpio.isBlank() ? usuarioLimpio : "Pasajero");
 
         return calificacionRepository.save(cal);
     }

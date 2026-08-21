@@ -6,7 +6,8 @@ import RouteMap from './components/RouteMap';
 import SuggestModal from './components/SuggestModal';
 import RatingModal from './components/RatingModal';
 import AdminPanel from './components/AdminPanel';
-import { buscarRutas } from './services/api';
+import AdminLoginModal from './components/AdminLoginModal';
+import { buscarRutas, isAdminAuthenticated, logoutAdmin, verificarSesionAdmin } from './services/api';
 import { Route, AlertCircle, RefreshCw, Compass, List, MapPin } from 'lucide-react';
 
 export default function App() {
@@ -15,7 +16,12 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isLive, setIsLive] = useState(false);
+
+  // Authentication & Admin Mode State
+  const [isAuthenticated, setIsAuthenticated] = useState(isAdminAuthenticated());
   const [isAdminMode, setIsAdminMode] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+
   const [isSuggestOpen, setIsSuggestOpen] = useState(false);
   const [mobileTab, setMobileTab] = useState('list'); // 'list' | 'map'
 
@@ -47,6 +53,12 @@ export default function App() {
 
   useEffect(() => {
     loadRutas('');
+    // Verificar si la sesión previa de admin sigue activa
+    if (isAdminAuthenticated()) {
+      verificarSesionAdmin().then(valido => {
+        setIsAuthenticated(valido);
+      });
+    }
   }, []);
 
   const handleSearch = (destino) => {
@@ -63,6 +75,35 @@ export default function App() {
   const handleOpenRating = (ruta) => {
     setRatingRoute(ruta);
     setIsRatingOpen(true);
+  };
+
+  const handleToggleAdmin = () => {
+    if (isAdminMode) {
+      setIsAdminMode(false);
+      setSearchQuery('');
+      loadRutas('');
+    } else {
+      if (isAuthenticated) {
+        setIsAdminMode(true);
+      } else {
+        setIsLoginOpen(true);
+      }
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true);
+    setIsAdminMode(true);
+    setSearchQuery('');
+    loadRutas('');
+  };
+
+  const handleLogoutAdmin = async () => {
+    await logoutAdmin();
+    setIsAuthenticated(false);
+    setIsAdminMode(false);
+    setSearchQuery('');
+    loadRutas('');
   };
 
   const handleCloseAdmin = () => {
@@ -82,13 +123,9 @@ export default function App() {
         isLive={isLive}
         totalRutas={rutas.length}
         isAdminMode={isAdminMode}
-        onToggleAdmin={() => {
-          if (isAdminMode) {
-            handleCloseAdmin();
-          } else {
-            setIsAdminMode(true);
-          }
-        }}
+        isAuthenticated={isAuthenticated}
+        onToggleAdmin={handleToggleAdmin}
+        onLogoutAdmin={handleLogoutAdmin}
         onOpenSuggest={() => setIsSuggestOpen(true)}
       />
 
@@ -228,6 +265,13 @@ export default function App() {
         onRatingSubmitted={() => {
           loadRutas(searchQuery);
         }}
+      />
+
+      {/* Admin Login Modal (Protección con contraseña BCrypt) */}
+      <AdminLoginModal
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
       />
     </div>
   );

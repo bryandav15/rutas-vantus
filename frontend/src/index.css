@@ -3596,3 +3596,106 @@ body {
     padding: 1rem !important;
   }
 }
+
+/* =========================================================
+   ADMIN AUTH & LOGIN MODAL STYLES
+   ========================================================= */
+.admin-login-card {
+  max-width: 440px !important;
+}
+
+.admin-badge-gold {
+  background: #fef3c7 !important;
+  color: #b45309 !important;
+}
+
+.admin-login-body {
+  padding: 1.25rem 1.5rem !important;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-left-icon {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.form-input.with-left-icon {
+  padding-left: 2.4rem !important;
+}
+
+.form-input.with-right-btn {
+  padding-right: 2.6rem !important;
+}
+
+.btn-toggle-eye {
+  position: absolute;
+  right: 0.6rem;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+.btn-toggle-eye:hover {
+  color: var(--text-primary);
+}
+
+.admin-security-note {
+  font-size: 0.73rem;
+  color: #047857;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.btn-admin-enter {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.3) !important;
+}
+
+.btn-admin-enter:hover:not(:disabled) {
+  background: #1e293b !important;
+}
+
+.btn-header-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.45rem 0.8rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-header-logout:hover {
+  background: #fecaca;
+  color: #991b1b;
+}

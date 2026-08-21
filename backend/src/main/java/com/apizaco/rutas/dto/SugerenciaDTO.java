@@ -61,10 +61,10 @@ public class SugerenciaDTO {
         Sugerencia s = new Sugerencia();
         s.setId(this.id);
         s.setTipo(this.tipo);
-        s.setTitulo(this.titulo);
-        s.setDescripcion(this.descripcion);
-        s.setRutaReferencia(this.rutaReferencia);
-        s.setNombreContacto(this.nombreContacto);
+        s.setTitulo(com.apizaco.rutas.util.SecuritySanitizer.sanitizarTexto(this.titulo));
+        s.setDescripcion(com.apizaco.rutas.util.SecuritySanitizer.sanitizarTexto(this.descripcion));
+        s.setRutaReferencia(com.apizaco.rutas.util.SecuritySanitizer.sanitizarTexto(this.rutaReferencia));
+        s.setNombreContacto(com.apizaco.rutas.util.SecuritySanitizer.sanitizarTexto(this.nombreContacto));
         s.setEstado(this.estado != null ? this.estado : "PENDIENTE");
         s.setDatosRutaJson(this.datosRutaJson);
         s.setFechaCreacion(this.fechaCreacion != null ? this.fechaCreacion : LocalDateTime.now());

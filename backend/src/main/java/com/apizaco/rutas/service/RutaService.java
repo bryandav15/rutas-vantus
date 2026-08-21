@@ -49,8 +49,8 @@ public class RutaService {
 
     public Ruta crearRuta(RutaCreateDTO dto) {
         Ruta ruta = new Ruta();
-        ruta.setNumero(dto.getNumero().trim());
-        ruta.setNombre(dto.getNombre().trim());
+        ruta.setNumero(com.apizaco.rutas.util.SecuritySanitizer.sanitizarTexto(dto.getNumero()));
+        ruta.setNombre(com.apizaco.rutas.util.SecuritySanitizer.sanitizarTexto(dto.getNombre()));
         String col = dto.getColorHex() != null && !dto.getColorHex().isBlank() ? dto.getColorHex() : dto.getColor();
         ruta.setColorHex(col != null && !col.isBlank() ? col.trim() : "#2F5233");
         ruta.setPrecioEstimado(dto.getPrecioEstimado());
@@ -68,10 +68,10 @@ public class RutaService {
                 .orElseThrow(() -> new RuntimeException("Ruta no encontrada con ID: " + id));
 
         if (dto.getNumero() != null && !dto.getNumero().isBlank()) {
-            ruta.setNumero(dto.getNumero().trim());
+            ruta.setNumero(com.apizaco.rutas.util.SecuritySanitizer.sanitizarTexto(dto.getNumero()));
         }
         if (dto.getNombre() != null && !dto.getNombre().isBlank()) {
-            ruta.setNombre(dto.getNombre().trim());
+            ruta.setNombre(com.apizaco.rutas.util.SecuritySanitizer.sanitizarTexto(dto.getNombre()));
         }
         String col = dto.getColorHex() != null && !dto.getColorHex().isBlank() ? dto.getColorHex() : dto.getColor();
         if (col != null && !col.isBlank()) {
@@ -119,15 +119,17 @@ public class RutaService {
 
         int orden = 1;
         for (ParadaCreateDTO pDto : dtoList) {
-            String nombreParada = pDto.getNombre() != null && !pDto.getNombre().isBlank()
+            String rawNombre = pDto.getNombre() != null && !pDto.getNombre().isBlank()
                     ? pDto.getNombre().trim()
                     : "Parada " + orden;
+            String nombreParada = com.apizaco.rutas.util.SecuritySanitizer.sanitizarTexto(rawNombre);
 
             Localidad localidad = localidadRepository.findFirstByNombreIgnoreCase(nombreParada)
                     .orElseGet(() -> {
                         Localidad nueva = new Localidad();
                         nueva.setNombre(nombreParada);
-                        nueva.setMunicipio(pDto.getMunicipio() != null && !pDto.getMunicipio().isBlank() ? pDto.getMunicipio().trim() : "Apizaco");
+                        String rawMun = pDto.getMunicipio() != null && !pDto.getMunicipio().isBlank() ? pDto.getMunicipio().trim() : "Apizaco";
+                        nueva.setMunicipio(com.apizaco.rutas.util.SecuritySanitizer.sanitizarTexto(rawMun));
                         nueva.setLat(pDto.getLat() != null ? pDto.getLat() : java.math.BigDecimal.valueOf(19.4128000));
                         nueva.setLng(pDto.getLng() != null ? pDto.getLng() : java.math.BigDecimal.valueOf(-98.1428000));
                         return localidadRepository.save(nueva);
@@ -139,7 +141,8 @@ public class RutaService {
             parada.setOrden(pDto.getOrden() != null ? pDto.getOrden() : orden);
             parada.setLat(pDto.getLat() != null ? pDto.getLat() : java.math.BigDecimal.valueOf(19.4128000));
             parada.setLng(pDto.getLng() != null ? pDto.getLng() : java.math.BigDecimal.valueOf(-98.1428000));
-            parada.setReferencia(pDto.getReferencia() != null && !pDto.getReferencia().isBlank() ? pDto.getReferencia().trim() : null);
+            String rawRef = pDto.getReferencia() != null && !pDto.getReferencia().isBlank() ? pDto.getReferencia().trim() : null;
+            parada.setReferencia(com.apizaco.rutas.util.SecuritySanitizer.sanitizarTexto(rawRef));
             result.add(parada);
             orden++;
         }

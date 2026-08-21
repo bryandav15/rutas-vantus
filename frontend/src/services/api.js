@@ -4,16 +4,112 @@
 // const STORAGE_KEY_SUGGESTIONS = 'rutas_apizaco_local_suggestions';
 // export function getLocalRoutes() { ... }
 // export function saveLocalRoutes(routes) { ... }
-// export function getLocalSuggestions() { ... }
-// export function saveLocalSuggestions(suggestions) { ... }
 
 const API_BASE_URL = '/api';
+const AUTH_TOKEN_KEY = 'rutas_admin_auth_token';
+const AUTH_USER_KEY = 'rutas_admin_auth_user';
 
-const HEADERS_DEFAULT = {
-  'Accept': 'application/json',
-  'Content-Type': 'application/json',
-  'ngrok-skip-browser-warning': 'true'
-};
+export function getAuthToken() {
+  return sessionStorage.getItem(AUTH_TOKEN_KEY);
+}
+
+export function getAuthUser() {
+  const data = sessionStorage.getItem(AUTH_USER_KEY);
+  try {
+    return data ? JSON.parse(data) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+export function isAdminAuthenticated() {
+  return !!getAuthToken();
+}
+
+export function clearAuthSession() {
+  sessionStorage.removeItem(AUTH_TOKEN_KEY);
+  sessionStorage.removeItem(AUTH_USER_KEY);
+}
+
+function getHeaders(requireAuth = false) {
+  const headers = {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true'
+  };
+
+  if (requireAuth) {
+    const token = getAuthToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+
+  return headers;
+}
+
+/**
+ * Autenticación de Administrador
+ */
+export async function loginAdmin(username, password) {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    method: 'POST',
+    headers: getHeaders(false),
+    body: JSON.stringify({ username, password })
+  });
+
+  const data = await response.json();
+
+  if (response.ok && data.autenticado && data.token) {
+    sessionStorage.setItem(AUTH_TOKEN_KEY, data.token);
+    sessionStorage.setItem(AUTH_USER_KEY, JSON.stringify({
+      username: data.username,
+      nombreCompleto: data.nombreCompleto,
+      rol: data.rol
+    }));
+    return data;
+  }
+
+  return {
+    autenticado: false,
+    mensaje: data.mensaje || 'Error de autenticación'
+  };
+}
+
+export async function verificarSesionAdmin() {
+  const token = getAuthToken();
+  if (!token) return false;
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/verificar`, {
+      method: 'GET',
+      headers: getHeaders(true)
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.valido === true;
+    }
+    clearAuthSession();
+    return false;
+  } catch (e) {
+    return false;
+  }
+}
+
+export async function logoutAdmin() {
+  const token = getAuthToken();
+  if (token) {
+    try {
+      await fetch(`${API_BASE_URL}/auth/logout`, {
+        method: 'POST',
+        headers: getHeaders(true)
+      });
+    } catch (e) {
+      // ignore
+    }
+  }
+  clearAuthSession();
+}
 
 /**
  * Consulta las rutas directamente desde la base de datos MySQL (Backend Spring Boot)
@@ -56,22 +152,25 @@ export async function buscarRutas(destino = '') {
     return { data: normalized, isLive: true };
   } catch (error) {
     console.error('[Error de Conexión a Base de Datos MySQL]:', error.message);
-    // Modo offline deshabilitado: retornamos arreglo vacío si MySQL no contesta
     return { data: [], isLive: false, error: error.message };
   }
 }
 
 /**
- * Crear una nueva ruta directamente en MySQL
+ * Crear una nueva ruta directamente en MySQL (Requiere Auth)
  */
 export async function crearRuta(rutaData) {
   const response = await fetch(`${API_BASE_URL}/rutas`, {
     method: 'POST',
-    headers: HEADERS_DEFAULT,
+    headers: getHeaders(true),
     body: JSON.stringify(rutaData)
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      clearAuthSession();
+      throw new Error('Sesión de administrador expirada. Vuelve a iniciar sesión.');
+    }
     const errText = await response.text();
     console.error('[MySQL Crear Ruta Error]:', response.status, errText);
     throw new Error(`Error al crear ruta en MySQL (HTTP ${response.status})`);
@@ -88,16 +187,20 @@ export async function crearRuta(rutaData) {
 }
 
 /**
- * Actualizar una ruta existente directamente en MySQL
+ * Actualizar una ruta existente directamente en MySQL (Requiere Auth)
  */
 export async function actualizarRuta(id, rutaData) {
   const response = await fetch(`${API_BASE_URL}/rutas/${id}`, {
     method: 'PUT',
-    headers: HEADERS_DEFAULT,
+    headers: getHeaders(true),
     body: JSON.stringify(rutaData)
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      clearAuthSession();
+      throw new Error('Sesión de administrador expirada. Vuelve a iniciar sesión.');
+    }
     const errText = await response.text();
     console.error('[MySQL Actualizar Ruta Error]:', response.status, errText);
     throw new Error(`Error al actualizar ruta en MySQL (HTTP ${response.status}): ${errText}`);
@@ -115,15 +218,19 @@ export async function actualizarRuta(id, rutaData) {
 }
 
 /**
- * Eliminar una ruta directamente de MySQL
+ * Eliminar una ruta directamente de MySQL (Requiere Auth)
  */
 export async function eliminarRuta(id) {
   const response = await fetch(`${API_BASE_URL}/rutas/${id}`, { 
     method: 'DELETE',
-    headers: { 'ngrok-skip-browser-warning': 'true' }
+    headers: getHeaders(true)
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      clearAuthSession();
+      throw new Error('Sesión de administrador expirada.');
+    }
     throw new Error(`Error al eliminar ruta en MySQL (HTTP ${response.status})`);
   }
 
@@ -131,12 +238,12 @@ export async function eliminarRuta(id) {
 }
 
 /**
- * Enviar sugerencia comunitaria directamente a MySQL
+ * Enviar sugerencia comunitaria directamente a MySQL (Público)
  */
 export async function enviarSugerencia(sugerenciaData) {
   const response = await fetch(`${API_BASE_URL}/sugerencias`, {
     method: 'POST',
-    headers: HEADERS_DEFAULT,
+    headers: getHeaders(false),
     body: JSON.stringify(sugerenciaData)
   });
 
@@ -149,7 +256,7 @@ export async function enviarSugerencia(sugerenciaData) {
 }
 
 /**
- * Obtener sugerencias directamente desde MySQL (Admin)
+ * Obtener sugerencias directamente desde MySQL (Requiere Auth)
  */
 export async function obtenerSugerencias(estado = '') {
   const url = estado && estado !== 'TODAS'
@@ -157,13 +264,13 @@ export async function obtenerSugerencias(estado = '') {
     : `${API_BASE_URL}/sugerencias`;
 
   const response = await fetch(url, {
-    headers: { 
-      'Accept': 'application/json',
-      'ngrok-skip-browser-warning': 'true'
-    }
+    headers: getHeaders(true)
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      clearAuthSession();
+    }
     console.error('[MySQL Sugerencias Error]:', response.status);
     return { data: [], isLive: false };
   }
@@ -173,16 +280,20 @@ export async function obtenerSugerencias(estado = '') {
 }
 
 /**
- * Cambiar estado de sugerencia directamente en MySQL (Aprobar/Rechazar)
+ * Cambiar estado de sugerencia directamente en MySQL (Requiere Auth)
  */
 export async function cambiarEstadoSugerencia(id, nuevoEstado) {
   const response = await fetch(`${API_BASE_URL}/sugerencias/${id}/estado`, {
     method: 'PUT',
-    headers: HEADERS_DEFAULT,
+    headers: getHeaders(true),
     body: JSON.stringify({ estado: nuevoEstado })
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      clearAuthSession();
+      throw new Error('Sesión de administrador expirada.');
+    }
     throw new Error(`Error al actualizar estado en MySQL (HTTP ${response.status})`);
   }
 
@@ -190,15 +301,19 @@ export async function cambiarEstadoSugerencia(id, nuevoEstado) {
 }
 
 /**
- * Aprobar y convertir una ruta sugerida en ruta oficial en MySQL
+ * Aprobar y convertir una ruta sugerida en ruta oficial en MySQL (Requiere Auth)
  */
 export async function aprobarYPublicarRutaSugerida(sugerenciaId) {
   const response = await fetch(`${API_BASE_URL}/sugerencias/${sugerenciaId}/convertir-en-ruta`, { 
     method: 'POST',
-    headers: { 'ngrok-skip-browser-warning': 'true' }
+    headers: getHeaders(true)
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      clearAuthSession();
+      throw new Error('Sesión de administrador expirada.');
+    }
     throw new Error(`Error al convertir sugerencia en ruta MySQL (HTTP ${response.status})`);
   }
 
@@ -207,12 +322,12 @@ export async function aprobarYPublicarRutaSugerida(sugerenciaId) {
 }
 
 /**
- * Enviar Calificación y Reseña de Ruta directamente a MySQL
+ * Enviar Calificación y Reseña de Ruta directamente a MySQL (Público)
  */
 export async function calificarRuta(rutaId, calificacionData) {
   const response = await fetch(`${API_BASE_URL}/rutas/${rutaId}/calificaciones`, {
     method: 'POST',
-    headers: HEADERS_DEFAULT,
+    headers: getHeaders(false),
     body: JSON.stringify(calificacionData)
   });
 

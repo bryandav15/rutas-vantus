@@ -61,3 +61,15 @@ CREATE TABLE IF NOT EXISTS calificacion (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (ruta_id) REFERENCES ruta(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+-- Tabla de Usuarios Administradores con contraseñas cifradas en BCrypt
+CREATE TABLE IF NOT EXISTS usuario_admin (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(100) NOT NULL,
+    nombre_completo VARCHAR(100),
+    rol VARCHAR(20) NOT NULL DEFAULT 'ROLE_ADMIN',
+    intentos_fallidos INT NOT NULL DEFAULT 0,
+    bloqueado_hasta DATETIME,
+    ultimo_acceso DATETIME
+) ENGINE=InnoDB;
