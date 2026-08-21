@@ -1,14 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X, Send, CheckCircle2, AlertCircle, MessageSquarePlus, DollarSign,
   MapPin, Bus, Map as MapIcon, Plus, Trash2, Navigation, Clock, RotateCcw, ArrowUpDown
 } from 'lucide-react';
-import { MapContainer, TileLayer, Marker, Polyline, Popup, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Polyline, Popup, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { enviarSugerencia } from '../services/api';
 
 const APIZACO_CENTER = [19.4128, -98.1428];
+
+function MapResizer({ trigger, stops }) {
+  const map = useMap();
+
+  useEffect(() => {
+    map.invalidateSize();
+    const t1 = setTimeout(() => map.invalidateSize(), 50);
+    const t2 = setTimeout(() => map.invalidateSize(), 200);
+    const t3 = setTimeout(() => map.invalidateSize(), 500);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [map, trigger]);
+
+  useEffect(() => {
+    if (stops && stops.length >= 2) {
+      try {
+        const bounds = L.latLngBounds(stops.map(s => [s.lat, s.lng]));
+        map.fitBounds(bounds, { padding: [30, 30], maxZoom: 15 });
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, [stops, map]);
+
+  return null;
+}
 
 function MiniMapClickHandler({ onMapClick }) {
   useMapEvents({
@@ -457,6 +487,7 @@ export default function SuggestModal({ isOpen, onClose, onSubmitted }) {
                         scrollWheelZoom={true}
                         className="citizen-leaflet-canvas"
                       >
+                        <MapResizer trigger={`${mobileSubTab}-${activeMode}-${isOpen}-${paradasTrazadas.length}`} stops={paradasTrazadas} />
                         <TileLayer
                           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
                           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
